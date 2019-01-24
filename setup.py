@@ -22,9 +22,9 @@ setup(
     packages=['g2p_seq2seq'],
     description='Grapheme to phoneme module based on Seq2Seq',
     long_description=long_description,
-    url='https://github.com/cmusphinx/g2p-seq2seq',
-    author='Nurtas Makhazhanov',
-    author_email='makhazhanovn@gmail.com',
+    url='https://github.com/pozalabs/g2p-seq2seq',
+    author='goobong dave',
+    author_email='goobong@pozalabs.com',
     license='Apache Software License',
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -35,14 +35,15 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
-    keywords='g2p seq2seq tensor2tensor rnnlm',
+    keywords='g2p seq2seq tensor2tensor rnnlm customized',
 
-    install_requires=['tensor2tensor>=1.6.6'],
+    install_requires=[],
 
     extras_require={
         'tensorflow': ['tensorflow>=1.8.0'],
-        'tensorflow_gpu': ['tensorflow-gpu>=1.8.0']
+        # 'tensorflow_gpu': ['tensorflow-gpu>=1.8.0']
     },
 
     entry_points={
@@ -50,5 +51,4 @@ setup(
             'g2p-seq2seq=g2p_seq2seq.app:main',
         ],
     },
-    test_suite = 'tests'
 )
