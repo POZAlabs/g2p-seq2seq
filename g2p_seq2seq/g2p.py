@@ -70,7 +70,9 @@ class G2PModel(object):
     self.inputs, self.features, self.input_fn = None, None, None
     self.mon_sess, self.estimator_spec, self.g2p_gt_map = None, None, None
     self.first_ex = False
+
     if train_path:
+      raise AssertionError("Train mode not supported")
       self.train_preprocess_file_path, self.dev_preprocess_file_path =\
           None, None
       self.estimator, self.decode_hp, self.hparams =\
@@ -83,8 +85,13 @@ class G2PModel(object):
           self.__prepare_model()
       self.__load_graph()
       self.checkpoint_path = tf.train.latest_checkpoint(self.params.model_dir)
+      self._prepare_decode()
+      
+      # initialize
+      self.decode_word_run_op("flowbox")
 
     else:
+      raise AssertionError("Not supported")
       self.estimator, self.decode_hp, self.hparams =\
           self.__prepare_model()
 
@@ -197,7 +204,7 @@ class G2PModel(object):
     # This should be longer than the longest input.
     const_array_size = 50
 
-    input_ids = vocabulary.encode(word)
+    input_ids = vocabulary.encode(decode_bstr(word))
     input_ids.append(text_encoder.EOS_ID)
     self.inputs = [num_samples, decode_length, len(input_ids)] + input_ids
     assert len(self.inputs) < const_array_size
@@ -249,7 +256,7 @@ class G2PModel(object):
 
   def __run_op(self, sess, decode_op, feed_input):
     """Run tensorflow operation for decoding."""
-    results = sess.run(decode_op,
+    results = sess.run(decode_op, 
                        feed_dict={"inp_decode:0" : [feed_input]})
     return results
 
@@ -501,6 +508,21 @@ class G2PModel(object):
 
     return correct, errors
 
+  def run(self, word):
+    """Make phoneme by given word(grapheme)"""
+    with tf.Session(graph=self.graph) as sess:
+      pronunciations = self.__run_op(sess, self.decode_op, word)
+      return decode_bstr(pronunciations)
+
+  def _prepare_decode(self):
+    """Set placeholder in session and set self.res_iter"""
+    with tf.Session(graph=self.graph) as sess:
+      inp = tf.placeholder(tf.string, name="inp_decode")[0]
+      self.decode_op = tf.py_func(self.decode_word, [inp], tf.string)
+      self.__prepare_interactive_model()
+
+def decode_bstr(word):
+  return word.decode('utf-8')
 
 def get_word():
   """Get next word in the interactive mode."""
