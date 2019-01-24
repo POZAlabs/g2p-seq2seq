@@ -81,6 +81,7 @@ class G2PModel(object):
           self.problem.generate_preprocess_data()
 
     elif os.path.exists(self.frozen_graph_filename):
+      # Only works with frozen model
       self.estimator, self.decode_hp, self.hparams =\
           self.__prepare_model()
       self.__load_graph()
@@ -88,7 +89,7 @@ class G2PModel(object):
       self._prepare_decode()
       
       # initialize
-      self.decode_word_run_op("flowbox")
+      self.run("flowbox")
 
     else:
       raise AssertionError("Not supported")
@@ -522,6 +523,7 @@ class G2PModel(object):
       self.__prepare_interactive_model()
 
 def decode_bstr(word):
+  """decode word like b''"""
   return word.decode('utf-8')
 
 def get_word():
